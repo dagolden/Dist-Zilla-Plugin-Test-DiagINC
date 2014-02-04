@@ -13,6 +13,7 @@ with(
         default_finders => [':TestFiles'],
     },
     'Dist::Zilla::Role::PPI',
+    'Dist::Zilla::Role::PrereqSource',
 );
 
 use PPI;
@@ -57,11 +58,23 @@ sub munge_file {
 
 }
 
+sub register_prereqs {
+    my $self = shift;
+
+    $self->zilla->register_prereqs(
+        {
+            phase => 'test',
+            type  => 'requires',
+        },
+        'Test::DiagINC' => '0',
+    );
+}
+
 __PACKAGE__->meta->make_immutable;
 
 1;
 
-=for Pod::Coverage BUILD munge_files munge_file
+=for Pod::Coverage BUILD munge_files munge_file register_prereqs
 
 =head1 SYNOPSIS
 
