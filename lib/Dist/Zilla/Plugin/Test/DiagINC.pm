@@ -16,11 +16,12 @@ with(
 );
 
 use PPI;
+use Syntax::Keyword::Junction qw/any/;
 use namespace::autoclean;
 
 sub munge_files {
     my ($self) = @_;
-    $self->munge_file($_) for grep { /\.t$/ } @{ $self->found_files };
+    $self->munge_file($_) for grep { $_->name =~ /\.t$/ } @{ $self->found_files };
 }
 
 sub munge_file {
@@ -30,7 +31,7 @@ sub munge_file {
 
     # using ::Comment is a hack for adding code copied from PkgVersion
     my $add = PPI::Token::Comment->new(
-        q[use if $ENV{AUTOMATED_TESTING}, 'Test::DiagINC'] . "\n" );
+        q[use if $ENV{AUTOMATED_TESTING}, 'Test::DiagINC';] . "\n" );
 
     my $was_munged;
 
@@ -48,6 +49,7 @@ sub munge_file {
 
     if ($was_munged) {
         $self->save_ppi_document_to_file( $document, $file );
+        $self->log_debug( [ "added Test::DiagINC line to %s", $file->name ] );
     }
     else {
         $self->log( [ "skipping %s: couldn't add Test::DiagINC line", $file->name ] );
