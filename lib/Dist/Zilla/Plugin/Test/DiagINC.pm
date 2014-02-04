@@ -6,27 +6,114 @@ package Dist::Zilla::Plugin::Test::DiagINC;
 # ABSTRACT: Add Test::DiagINC to all .t files
 # VERSION
 
+use Moose;
+with(
+    'Dist::Zilla::Role::FileMunger',
+    'Dist::Zilla::Role::FileFinderUser' => {
+        default_finders => [':TestFiles'],
+    },
+    'Dist::Zilla::Role::PPI',
+);
+
+use PPI;
+use namespace::autoclean;
+
+sub munge_files {
+    my ($self) = @_;
+    $self->munge_file($_) for grep { /\.t$/ } @{ $self->found_files };
+}
+
+sub munge_file {
+    my ( $self, $file ) = @_;
+
+    my $document = $self->ppi_document_for_file($file);
+
+    # using ::Comment is a hack for adding code copied from PkgVersion
+    my $add = PPI::Token::Comment->new(
+        q[use if $ENV{AUTOMATED_TESTING}, 'Test::DiagINC'] . "\n" );
+
+    my $was_munged;
+
+    # XXX should errors get reported? -- xdg, 2014-02-04
+    eval {
+        my @includes = @{ $document->find('PPI::Statement::Include') };
+
+        for my $s (@includes) {
+            next if $s->version;
+            next if $s->module eq any(qw/strict warnings/);
+            $was_munged = $s->first_token->insert_before($add);
+            last;
+        }
+    };
+
+    if ($was_munged) {
+        $self->save_ppi_document_to_file( $document, $file );
+    }
+    else {
+        $self->log( [ "skipping %s: couldn't add Test::DiagINC line", $file->name ] );
+    }
+
+}
+
+__PACKAGE__->meta->make_immutable;
+
 1;
 
 =for Pod::Coverage BUILD
 
 =head1 SYNOPSIS
 
-    use Dist::Zilla::Plugin::Test::DiagINC;
+    # in dist.ini
+    [Test::DiagINC]
 
 =head1 DESCRIPTION
 
-This module might be cool, but you'd never know it from the lack
-of documentation.
+This L<Dist::Zilla> plugin adds the following L<Test::DiagINC> line to all
+C<.t> files under the C<t/> directory:
 
-=head1 USAGE
+    use if $ENV{AUTOMATED_TESTING}, 'Test::DiagINC';
 
-Good luck!
+It will be inserted before the first module loaded, excluding C<strict> and
+C<warnings>.  This makes sure that it is loaded before L<Test::More>, which
+L<Test::DiagINC> requires.
 
-=head1 SEE ALSO
+For example, it will turn this:
 
-=for :list
-* Maybe other modules do related things.
+    use 5.008001;
+    use strict;
+    use warnings;
+
+    use Test::More;
+    # etc.
+
+Into this:
+
+    use 5.008001;
+    use strict;
+    use warnings;
+
+    use if $ENV{AUTOMATED_TESTING}, 'Test::DiagINC';
+    use Test::More;
+    # etc.
+
+=head1 RATIONALE
+
+Prerequisite reporting modules like L<Dist::Zilla::Plugin::Test::ReportPrereqs>
+and similar modules give an overview of prerequisites, but don't generally list
+I<deep> dependencies — i.e. the modules used by the modules you use.
+
+L<Dist::Zilla::Plugin::Test::PrereqsFromMeta> offers a feature to report from
+C<%INC> after loading all prerequisites, but it doesn't cover all types of
+dependencies and can't account for optional dependencies.
+
+What I find most relevent is knowing exactly what modules are loaded when any
+given test fails.  This would include test modules, optional modules and so on.
+It is I<specific> to the failure situation.
+
+That sort of output is also verbose, so this plugin only generates that output
+if C<$ENV{AUTOMATED_TESTING}> is true.  That means it will show up on CPAN
+Testers, but not clutter up manual test output, which seems to me like the
+right tradeoff.
 
 =cut
 
