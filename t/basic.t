@@ -17,8 +17,10 @@ use strict;
 use warnings;
 
 use if $ENV{AUTOMATED_TESTING}, 'Test::DiagINC';
-use Test::More;
+use Test::More tests => 1;
 use File::Find;
+
+fail("meh");
 HERE
 
 is( $got, $expected, "Test::DiagINC line inserted" );
