@@ -59,7 +59,7 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-=for Pod::Coverage BUILD
+=for Pod::Coverage BUILD munge_files munge_file
 
 =head1 SYNOPSIS
 
@@ -106,14 +106,14 @@ L<Dist::Zilla::Plugin::Test::PrereqsFromMeta> offers a feature to report from
 C<%INC> after loading all prerequisites, but it doesn't cover all types of
 dependencies and can't account for optional dependencies.
 
-What I find most relevent is knowing exactly what modules are loaded when any
+What I find most relevant is knowing exactly what modules are loaded when any
 given test fails.  This would include test modules, optional modules and so on.
 It is I<specific> to the failure situation.
 
 That sort of output is also verbose, so this plugin only generates that output
 if C<$ENV{AUTOMATED_TESTING}> is true.  That means it will show up on CPAN
 Testers, but not clutter up manual test output, which seems to me like the
-right tradeoff.
+right trade-off.
 
 =cut
 
