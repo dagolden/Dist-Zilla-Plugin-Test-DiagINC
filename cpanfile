@@ -1,8 +1,10 @@
 requires "Dist::Zilla::Role::FileFinderUser" => "0";
 requires "Dist::Zilla::Role::FileMunger" => "0";
 requires "Dist::Zilla::Role::PPI" => "0";
+requires "Dist::Zilla::Role::PrereqSource" => "0";
 requires "Moose" => "0";
 requires "PPI" => "0";
+requires "Syntax::Keyword::Junction" => "0";
 requires "namespace::autoclean" => "0";
 requires "perl" => "5.008001";
 requires "strict" => "0";
@@ -12,6 +14,7 @@ on 'test' => sub {
   requires "ExtUtils::MakeMaker" => "0";
   requires "File::Spec::Functions" => "0";
   requires "List::Util" => "0";
+  requires "Test::DZil" => "0";
   requires "Test::More" => "0";
   requires "version" => "0";
 };
