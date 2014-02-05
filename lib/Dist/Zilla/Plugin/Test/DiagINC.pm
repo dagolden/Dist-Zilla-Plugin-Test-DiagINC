@@ -66,7 +66,7 @@ sub register_prereqs {
             phase => 'test',
             type  => 'requires',
         },
-        'Test::DiagINC' => '0',
+        'Test::DiagINC' => '0.002',
     );
 }
 

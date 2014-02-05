@@ -28,6 +28,6 @@ is( $got, $expected, "Test::DiagINC line inserted" );
 my $tr = $tzil->prereqs->requirements_for(qw/test requires/);
 
 is( $tr->requirements_for_module("Test::DiagINC"),
-    0, "Test::DiagINC added to Test/Requires" );
+    "0.002", "Test::DiagINC added to Test/Requires" );
 
 done_testing;
