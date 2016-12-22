@@ -16,8 +16,7 @@ use 5.008;
 use strict;
 use warnings;
 
-use if $ENV{AUTOMATED_TESTING}, 'Test::DiagINC';
-use Test::More tests => 1;
+use if $ENV{AUTOMATED_TESTING}, 'Test::DiagINC'; use Test::More tests => 1;
 use File::Find;
 
 fail("meh");

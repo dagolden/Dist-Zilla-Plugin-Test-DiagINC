@@ -31,8 +31,8 @@ sub munge_file {
     my $document = $self->ppi_document_for_file($file);
 
     # using ::Comment is a hack for adding code copied from PkgVersion
-    my $add = PPI::Token::Comment->new(
-        q[use if $ENV{AUTOMATED_TESTING}, 'Test::DiagINC';] . "\n" );
+    my $add =
+      PPI::Token::Comment->new(q[use if $ENV{AUTOMATED_TESTING}, 'Test::DiagINC'; ]);
 
     my $was_munged;
 
@@ -88,9 +88,10 @@ C<.t> files under the C<t/> directory:
 
     use if $ENV{AUTOMATED_TESTING}, 'Test::DiagINC';
 
-It will be inserted before the first module loaded, excluding C<strict> and
-C<warnings>.  This makes sure that it is loaded before L<Test::More>, which
-L<Test::DiagINC> requires.
+It will be inserted before the first module loaded (without adding a line
+to preserve line numbering), excluding C<strict> and C<warnings>.  This
+makes sure that it is loaded before L<Test::More>, which L<Test::DiagINC>
+requires.
 
 For example, it will turn this:
 
@@ -107,8 +108,7 @@ Into this:
     use strict;
     use warnings;
 
-    use if $ENV{AUTOMATED_TESTING}, 'Test::DiagINC';
-    use Test::More;
+    use if $ENV{AUTOMATED_TESTING}, 'Test::DiagINC'; use Test::More;
     # etc.
 
 =head1 RATIONALE
