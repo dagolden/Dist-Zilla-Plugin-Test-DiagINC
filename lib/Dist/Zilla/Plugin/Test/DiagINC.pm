@@ -5,7 +5,7 @@ use warnings;
 package Dist::Zilla::Plugin::Test::DiagINC;
 # ABSTRACT: Add Test::DiagINC to all .t files
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 use Moose;
 with(
